@@ -272,6 +272,10 @@ would need to keep and propagate transformations from other transformers.
 
 We are prioritizing a restrictive but predictable API over a powerful but complex one.
 
+For iteration 1, Kustomize *will not enforce these restrictions*, however plugins that do not foolow them
+are considered likely to to break when used with other plugins, known to make the kustomization.yaml
+unintelligible, and likely to break in the future.
+
 ### Phases
 
 Follow is the Kustomize workflow:
@@ -406,6 +410,7 @@ Consider:
 - Executing plugins for generated Resources
 - Supporting ordering
 - Additional phases - e.g. Plugin Transformers after Built-In Transformers
+- Lifting all restrictions on Transformers
 
 ### Upgrade / Downgrade Strategy
 
@@ -433,3 +438,20 @@ NA - Client side only
 - Allow arbitrary Transformation changes
   - Increases complexity + interactions
   - Reduces readability
+  
+  ### Allow Transformers to do more
+  
+  Allow Transformers to add / remove objects, or update their names / namespaces.
+  
+  Why not: Greatly reduces the ability to look at the kustomize file and understand what
+  will be emitted.  e.g. a Transformer could change all ConfigMaps to Secrets, this would
+  make it very difficult to read the Declarative Resource Config.
+  
+  Reasons why not:
+  
+  1. Reduces readbility of the kustomization file by introducing complex changes to what is generated rather
+    than kustomizations.
+  1. Increases the likelihood that transformers will break reference updates - e.g. things that need to
+    update references to other objects may break.
+  1. No clear use case for this has been defined.
+  1. Easy to lift these restrictions, hard to introduce them later.
